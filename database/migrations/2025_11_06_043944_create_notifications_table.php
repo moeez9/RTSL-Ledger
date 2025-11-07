@@ -15,19 +15,25 @@ return new class extends Migration
             $table->id();
 
             // Recipient and sender
-            $table->foreignId('users_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('sender_id')->nullable()->constrained('users')->restrictOnDelete();
-
-            // Optional link to related entity (ledger, request, etc.)
-            $table->unsignedBigInteger('related_id')->nullable();
-            $table->string('related_table')->nullable(); //  (store table name)
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('sender_id')->constrained('users')->restrictOnDelete();
 
             // Notification details
-            $table->string('title', 150);
-            $table->text('message')->nullable();
+            $table->string('title', 100)->nullable(false);
+            $table->text('message')->nullable(false);
+            $table->enum('type', ['ledger', 'feedback', 'bug', 'request', 'update', 'alert'])->nullable(false);
+            $table->enum('action_type', ['inserted', 'updated', 'deleted', 'approved'])->default('inserted');
+
+            // Related entity reference
+            $table->string('related_table', 50)->nullable();
+            $table->integer('related_id')->nullable();
+
+            // Status fields
             $table->boolean('is_read')->default(false);
+            $table->enum('status', ['active', 'deleted', 'hidden'])->default('active');
 
             $table->timestamps();
+            $table->timestamp('expired_at')->nullable();
         });
     }
 

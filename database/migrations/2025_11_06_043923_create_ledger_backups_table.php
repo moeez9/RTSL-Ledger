@@ -3,9 +3,11 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 return new class extends Migration
 {
+    use HasFactory;
     /**
      * Run the migrations.
      */
@@ -14,21 +16,22 @@ return new class extends Migration
         Schema::create('ledger_backups', function (Blueprint $table) {
             $table->id();
 
-            // Relation to original ledger
+            // Foreign keys
+            $table->foreignId('rlr_id')->constrained('relation_ledger_request')->restrictOnDelete();
             $table->foreignId('ledger_id')->constrained('ledgers')->restrictOnDelete();
+            $table->foreignId('update_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('delete_by')->constrained('users')->restrictOnDelete();
 
-            // Optional action metadata
-            $table->foreignId('updated_by')->nullable()->constrained('users')->restrictOnDelete();
-            $table->foreignId('deleted_by')->nullable()->constrained('users')->restrictOnDelete();
+            // Backup data
+            $table->json('old_data')->nullable(false);  // not null
+            $table->json('new_data')->nullable();  // nullable
 
-            // Snapshot fields
-            $table->decimal('debit', 10, 2)->default(0);
-            $table->decimal('credit', 10, 2)->default(0);
-            $table->decimal('balance', 10, 2)->default(0);
-            $table->text('description')->nullable();
+            // Type and remarks
+            $table->enum('action_type', ['update', 'delete'])->nullable(false);
+            $table->text('remarks')->nullable();
 
-            // Track when the backup was created
-            $table->timestamps();
+            // Timestamp
+            $table->timestamp('created_at')->nullable(false);
         });
     }
 

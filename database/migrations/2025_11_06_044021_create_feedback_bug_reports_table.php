@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('feedback_bug_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->string('title');
-            $table->text('description');
+            $table->string('type'); // feedback or bug report
+            $table->string('subject');
+            $table->text('message');
+            $table->json('attachments', 500)->nullable();
             $table->string('status')->default('pending'); // pending, reviewed, resolved, rejected
             $table->timestamps();
             $table->softDeletes();

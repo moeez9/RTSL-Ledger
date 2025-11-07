@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other']);
             $table->string('phone_no');
             $table->string('profile_pic')->nullable();
-            $table->timestamp('verified_email_at')->nullable();
+            $table->boolean('verified_email_at')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
