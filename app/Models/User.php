@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -19,11 +20,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'full_name',
         'f_name',
         'date_of_birth',
+        'email',
+        'password',
         'gender',
         'phone_no',
         'profile_pic',
@@ -105,7 +106,7 @@ class User extends Authenticatable
     // Feedback / Bug Reports
     public function feedbacks()
     {
-        return $this->hasMany(feedback_bug_reports::class, 'user_id');
+        return $this->hasMany(FeedbackBugReports::class, 'user_id');
     }
 
     // Notifications
