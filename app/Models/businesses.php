@@ -9,7 +9,7 @@ class businesses extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'business_names';
+    protected $table = 'businesses';
 
     protected $fillable = [
         'business_name',
@@ -30,7 +30,7 @@ class businesses extends Model
     |--------------------------------------------*/
 
     // Each business name belongs to a category
-    public function category()
+    public function categories()
     {
         return $this->belongsTo(categories::class, 'cate_id');
     }
@@ -38,6 +38,6 @@ class businesses extends Model
     // A business name can have multiple business types
     public function businessTypes()
     {
-        return $this->hasMany(business_types::class, 'bus_name_id');
+        return $this->hasMany(business_users::class, 'bus_name_id');
     }
 }

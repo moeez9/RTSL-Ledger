@@ -7,59 +7,63 @@ use Illuminate\Http\Request;
 
 class BusinessesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // GET /api/businesses
     public function index()
     {
-        //
+        return businesses::with('category')->get();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // POST /api/businesses
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'business_name' => 'required|string|max:30|unique:businesses,business_name',
+            'cate_id' => 'required|exists:categories,id',
+        ]);
+
+        $business = businesses::create($request->only('business_name', 'cate_id'));
+
+        return response()->json($business, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(businesses $businesses)
+    // GET /api/businesses/{id}
+    public function show(businesses $business)
     {
-        //
+        return $business->load('category');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(businesses $businesses)
+    // PUT/PATCH /api/businesses/{id}
+    public function update(Request $request, businesses $business)
     {
-        //
+        $request->validate([
+            'business_name' => 'required|string|max:30|unique:businesses,business_name,' . $business->id,
+            'cate_id' => 'required|exists:categories,id',
+        ]);
+
+        $business->update($request->only('business_name', 'cate_id'));
+
+        return response()->json($business, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, businesses $businesses)
+    // DELETE /api/businesses/{id}
+    public function destroy(businesses $business)
     {
-        //
+        $business->delete();
+
+        return response()->json(['message' => 'Business deleted successfully'], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(businesses $businesses)
+    // Optional: restore soft-deleted business
+    public function restore($id)
     {
-        //
+        $business = businesses::withTrashed()->find($id);
+
+        if (!$business || !$business->trashed()) {
+            return response()->json(['message' => 'Business not deleted or not found'], 404);
+        }
+
+        $business->restore();
+
+        return response()->json(['message' => 'Business restored', 'data' => $business], 200);
     }
 }
