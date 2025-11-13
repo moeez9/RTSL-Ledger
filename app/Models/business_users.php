@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class business_users extends Model
 {
@@ -21,10 +22,10 @@ class business_users extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function businessName()
+    public function business()
     {
         return $this->belongsTo(businesses::class, 'bus_name_id');
     }

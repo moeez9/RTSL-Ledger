@@ -61,6 +61,18 @@ class User extends Authenticatable
     | Relationships
     |--------------------------------------------*/
 
+    // Role Users
+    public function roleUsers()
+    {
+        return $this->hasMany(role_users::class, 'user_id');
+    }
+
+    // Business Users
+    public function businessUsers()
+    {
+        return $this->belongsTo(business_users::class, 'user_id');
+    }
+
     // Ledgers linked to user through inserted_by
     public function insertedLedgers()
     {

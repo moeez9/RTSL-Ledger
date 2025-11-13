@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class relation_ledger_request extends Model
 {
+    use HasFactory;
+    protected $table = 'relation_ledger_request';
     protected $fillable = [
         'seller_business_user_id',
         'buyer_business_user_id',
-        'status'
+        'status',
+        'requested_by'
     ];
 
     // Relations

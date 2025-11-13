@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
+use App\Models\role_users;
 
 class AuthController extends Controller
 {
@@ -45,6 +46,16 @@ class AuthController extends Controller
             'profile_pic' => $validated['profile_pic'] ?? null,
         ]);
 
+        // Assign default role to the user
+        $roleUser = ['seller', 'buyer'];
+        foreach ($roleUser as $role) {
+            role_users::create([
+                'user_id' => $user->id,
+                'role' => $role,
+            ]);
+        }
+
+        // Create token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

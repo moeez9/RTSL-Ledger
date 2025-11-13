@@ -3,17 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\businesses;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class BusinessesController extends Controller
 {
-    // GET /api/businesses
+    use HasFactory;
+    /**
+     * Display a listing of all businesses with category name.
+     */
     public function index()
     {
-        return businesses::with('category')->get();
+        $businesses = businesses::with('categories')->get();
+        return response()->json($businesses, 200);
     }
 
-    // POST /api/businesses
+    /**
+     * Store a new business.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -21,49 +29,41 @@ class BusinessesController extends Controller
             'cate_id' => 'required|exists:categories,id',
         ]);
 
-        $business = businesses::create($request->only('business_name', 'cate_id'));
+        $businesses = businesses::create($request->only('business_name', 'cate_id'));
 
-        return response()->json($business, 201);
+        return response()->json($businesses, 201);
     }
 
-    // GET /api/businesses/{id}
-    public function show(businesses $business)
+    /**
+     * Display a specific business by ID.
+     */
+    public function show(businesses $businesses)
     {
-        return $business->load('category');
+        $businesses->load('categories');
+        return response()->json($businesses, 200);
     }
 
-    // PUT/PATCH /api/businesses/{id}
-    public function update(Request $request, businesses $business)
+    /**
+     * Update an existing business.
+     */
+    public function update(Request $request, businesses $businesses)
     {
         $request->validate([
-            'business_name' => 'required|string|max:30|unique:businesses,business_name,' . $business->id,
+            'business_name' => 'required|string|max:30|unique:businesses,business_name,' . $businesses->id,
             'cate_id' => 'required|exists:categories,id',
         ]);
 
-        $business->update($request->only('business_name', 'cate_id'));
-
-        return response()->json($business, 200);
+        $businesses->update($request->only('business_name', 'cate_id'));
+        return response()->json($businesses, 200);
     }
 
-    // DELETE /api/businesses/{id}
-    public function destroy(businesses $business)
+    /**
+     * Prevent deletion of businesses.
+     */
+    public function destroy(businesses $businesses)
     {
-        $business->delete();
-
-        return response()->json(['message' => 'Business deleted successfully'], 200);
-    }
-
-    // Optional: restore soft-deleted business
-    public function restore($id)
-    {
-        $business = businesses::withTrashed()->find($id);
-
-        if (!$business || !$business->trashed()) {
-            return response()->json(['message' => 'Business not deleted or not found'], 404);
-        }
-
-        $business->restore();
-
-        return response()->json(['message' => 'Business restored', 'data' => $business], 200);
+        return response()->json([
+            'message' => 'Businesses cannot be deleted once created.'
+        ], 403);
     }
 }

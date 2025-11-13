@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('business_users', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('users_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('bus_name_id')->constrained('businesses')->restrictOnDelete();
-            $table->foreignId('role_id')->constrained('role_users')->restrictOnDelete();
-            $table->timestamp('created_at')->useCurrent();
-        });
+    $table->id();
+    $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+    $table->foreignId('bus_name_id')->constrained('businesses')->restrictOnDelete();
+    $table->foreignId('role_id')->constrained('role_users')->restrictOnDelete();
+    $table->timestamps();
+});
     }
 
     /**

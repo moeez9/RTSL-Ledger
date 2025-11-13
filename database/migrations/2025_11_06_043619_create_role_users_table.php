@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('role_users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            //role field restricted to allowed types
             $table->enum('role', ['seller', 'buyer', 'admin']);
-            $table->timestamp('created_at');
+            $table->timestamps();
+            // Ensure a user cannot have the same role multiple times
+            $table->unique(['user_id', 'role'], 'unique_user_role');
         });
     }
 
