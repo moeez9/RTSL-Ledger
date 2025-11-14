@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // Link to the Relation Ledger Request
-            $table->foreignId('rlr_id')->constrained('relation_ledger_request')->restrictOnDelete();
+            $table->foreignId('rlr_id')->constrained('relation_ledger_requests')->restrictOnDelete();
 
             // Transaction fields
             $table->integer('qty')->default(0);

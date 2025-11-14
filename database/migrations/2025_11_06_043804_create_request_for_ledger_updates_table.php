@@ -34,6 +34,14 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+             // Indexes for faster queries
+            $table->index('rlr_id');
+            $table->index('ledger_id');
+            $table->index('seller_id');
+            $table->index('buyer_id');
+            $table->index('requested_by');
+            $table->index('approved_by');
         });
     }
 

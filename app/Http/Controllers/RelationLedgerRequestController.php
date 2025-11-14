@@ -6,6 +6,7 @@ use App\Models\relation_ledger_request;
 use Illuminate\Http\Request;
 use App\Models\business_users;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
 class RelationLedgerRequestController extends Controller
 {
@@ -22,8 +23,9 @@ class RelationLedgerRequestController extends Controller
             'buyer.user:id,full_name,email',
             'buyer.business:id,business_name'
         ])
+        //main table (relation_ledger_request) ki query
         ->where(function($q) use ($userId) {
-            $q->whereHas('seller.user', fn($q2) => $q2->where('id', $userId))
+            $q->whereHas('seller.user', fn($q2) => $q2->where('id', $userId))//related table (user) ki query
               ->orWhereHas('buyer.user', fn($q2) => $q2->where('id', $userId));
         })
         ->get();

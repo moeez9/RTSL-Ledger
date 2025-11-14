@@ -5,17 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Ledgers;
 use App\Models\relation_ledger_request;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Ledger;
+//use Illuminate\Support\Facades\Auth;
 
-class LedgerController extends Controller
+class LedgersController extends Controller
 {
     /**
      * List all ledger entries for the authenticated user
      */
     public function index()
     {
-        $userId = Auth::id();
-
+       //$userId = Auth::id();
+       try {
+    $userId = 1; // Temporary hardcoded user ID for testing
         $ledgers = Ledgers::with(['insertedBy:id,full_name', 'approvedBy:id,full_name', 'rlr.seller.user', 'rlr.buyer.user'])
             ->whereHas('rlr', function($q) use ($userId) {
                 $q->whereHas('seller.user', fn($s) => $s->where('id', $userId))
@@ -24,6 +27,9 @@ class LedgerController extends Controller
             ->get();
 
         return response()->json($ledgers, 200);
+         } catch (\Exception $e) {
+        return response()->json(['error' => 'An error occurred while fetching ledger entries.'], 500);
+         }
     }
 
     /**
@@ -31,6 +37,7 @@ class LedgerController extends Controller
      */
     public function store(Request $request)
     {
+        try {
         $request->validate([
             'rlr_id' => 'required|exists:relation_ledger_request,id',
             'date' => 'required|date',
@@ -42,7 +49,8 @@ class LedgerController extends Controller
             'Credit' => 'required|numeric|min:0',
         ]);
 
-        $userId = Auth::id();
+        //$userId = Auth::id();
+        $userId = 1; // Temporary hardcoded user ID for testing
         $rlr = relation_ledger_request::with(['seller.user', 'buyer.user'])->findOrFail($request->rlr_id);
 
         // Check if user is part of this ledger request
@@ -54,7 +62,7 @@ class LedgerController extends Controller
         $lastBalance = Ledgers::where('rlr_id', $rlr->id)->latest('id')->value('Balance') ?? 0;
         $balance = $lastBalance + $request->Credit - $request->Debit;
 
-        $ledger = Ledgers::create([
+        $ledgers = Ledgers::create([
             'rlr_id' => $rlr->id,
             'date' => $request->date,
             'description' => $request->description,
@@ -71,8 +79,11 @@ class LedgerController extends Controller
 
         return response()->json([
             'message' => 'Ledger entry created successfully.',
-            'ledger' => $ledger
+            'ledger' => $ledgers
         ], 201);
+        } catch(\Exception $e){
+            return response()->json(['error' => 'An error occurred while creating the ledger entry.', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -80,36 +91,37 @@ class LedgerController extends Controller
      */
     public function approve($id)
     {
-        $userId = Auth::id();
-        $ledger = Ledgers::with(['rlr.seller.user', 'rlr.buyer.user'])->findOrFail($id);
+        //$userId = Auth::id();
+        $userId = 2; // Temporary hardcoded user ID for testing
+        $ledgers = Ledgers::with(['rlr.seller.user', 'rlr.buyer.user'])->findOrFail($id);
 
         // Only the other party can approve
-        if ($ledger->requested_by == $userId) {
+        if ($ledgers->requested_by == $userId) {
             return response()->json(['error' => 'You cannot approve your own ledger entry.'], 422);
         }
 
-        $allowedUserIds = [$ledger->rlr->seller->user_id, $ledger->rlr->buyer->user_id];
+        $allowedUserIds = [$ledgers->rlr->seller->user_id, $ledgers->rlr->buyer->user_id];
         if (!in_array($userId, $allowedUserIds)) {
             return response()->json(['error' => 'Unauthorized action.'], 403);
         }
 
         // Approve
-        $ledger->approved_by = $userId;
-        $ledger->updated_time = now();
-        $ledger->save();
+        $ledgers->approved_by = $userId;
+        $ledgers->updated_time = now();
+        $ledgers->save();
 
         return response()->json([
             'message' => 'Ledger entry approved successfully.',
-            'ledger' => $ledger
+            'ledger' => $ledgers
         ], 200);
     }
 
     /**
      * Show single ledger entry
      */
-    public function show(Ledgers $ledger)
+    public function show(Ledgers $ledgers)
     {
-        $ledger->load(['insertedBy:id,full_name', 'approvedBy:id,full_name', 'rlr.seller.user', 'rlr.buyer.user']);
-        return response()->json($ledger, 200);
+        $ledgers->load(['insertedBy:id,full_name', 'approvedBy:id,full_name', 'rlr.seller.user', 'rlr.buyer.user']);
+        return response()->json($ledgers, 200);
     }
 }

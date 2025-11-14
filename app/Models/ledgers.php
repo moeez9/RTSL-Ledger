@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\relation_ledger_request;
+use App\Models\User;
+use Illuminate\Controllers\LedgerController;
+use Illuminate\Http\Ledger;
 
 class Ledgers extends Model
 {
