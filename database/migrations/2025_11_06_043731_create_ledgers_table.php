@@ -15,18 +15,19 @@ return new class extends Migration
             $table->id();
 
             // Link to the Relation Ledger Request
-            $table->foreignId('rlr_id')->constrained('relation_ledger_requests')->restrictOnDelete();
+            $table->foreignId('rlr_id')->constrained('relation_ledger_request');
+            //date
+            $table->date('date')->useCurrent();
 
+            $table->text('description')->nullable();
             // Transaction fields
-            $table->integer('qty')->default(0);
+            $table->integer('qty')->nullable();
             $table->string('set')->nullable();
-            $table->decimal('rate', 12, 2)->default(0);
-            $table->decimal('total', 14, 2)->default(0);
+            $table->decimal('rate', 12, 2)->nullable();
+            $table->decimal('total', 14, 2)->nullable();
             $table->decimal('debit', 10, 2)->default(0);
             $table->decimal('credit', 10, 2)->default(0);
             $table->decimal('balance', 10, 2)->default(0);
-
-            $table->text('description')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
 
             // Audit trail (all link to users)

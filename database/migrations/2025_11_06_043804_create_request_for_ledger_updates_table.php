@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('buyer_id')->constrained('business_users')->restrictOnDelete();
 
             // Request details
-            $table->string('reason', 255)->nullable(false);
+            $table->string('reason', 255)->default('no reason provided');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
 
             // Audit trail
@@ -40,6 +40,8 @@ return new class extends Migration
             $table->index('ledger_id');
             $table->index('seller_id');
             $table->index('buyer_id');
+            $table->index('reason');
+            $table->index('status');
             $table->index('requested_by');
             $table->index('approved_by');
         });

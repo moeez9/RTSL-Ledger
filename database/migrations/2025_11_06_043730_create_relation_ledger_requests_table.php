@@ -18,12 +18,9 @@ return new class extends Migration
             $table->foreignId('seller_business_user_id')->constrained('business_users')->restrictOnDelete();
             $table->foreignId('buyer_business_user_id')->constrained('business_users')->restrictOnDelete();
 
-            // // Participants (seller and buyer) → also from business_users
-            // $table->foreignId('seller_id')->constrained('business_users')->restrictOnDelete();
-            // $table->foreignId('buyer_id')->constrained('business_users')->restrictOnDelete();
-
             $table->enum('status', ['pending', 'accepted', 'cancelled'])->default('pending');
     $table->enum('requested_by', ['buyer', 'seller']);
+    $table->enum('approved_by', ['buyer', 'seller']);
 
     $table->timestamps();
         });

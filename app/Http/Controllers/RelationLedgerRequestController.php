@@ -23,9 +23,8 @@ class RelationLedgerRequestController extends Controller
             'buyer.user:id,full_name,email',
             'buyer.business:id,business_name'
         ])
-        //main table (relation_ledger_request) ki query
         ->where(function($q) use ($userId) {
-            $q->whereHas('seller.user', fn($q2) => $q2->where('id', $userId))//related table (user) ki query
+            $q->whereHas('seller.user', fn($q2) => $q2->where('id', $userId))
               ->orWhereHas('buyer.user', fn($q2) => $q2->where('id', $userId));
         })
         ->get();
@@ -41,6 +40,7 @@ class RelationLedgerRequestController extends Controller
                 'buyer_business' => $req->buyer->business->business_name,
                 'status' => $req->status,
                 'requested_by' => $req->requested_by,
+                'approved_by' => $req->approved_by,
                 'created_at' => $req->created_at,
                 'updated_at' => $req->updated_at,
             ];
@@ -101,6 +101,7 @@ class RelationLedgerRequestController extends Controller
                 'buyer_business_user_id' => $buyer->id,
                 'status' => 'pending',
                 'requested_by' => $requested_by,
+                'approved_by' => null, // default null
             ]);
 
             $ledger->load([
@@ -119,6 +120,7 @@ class RelationLedgerRequestController extends Controller
                 'buyer_business' => $ledger->buyer->business->business_name,
                 'status' => $ledger->status,
                 'requested_by' => $ledger->requested_by,
+                'approved_by' => $ledger->approved_by,
                 'created_at' => $ledger->created_at,
             ], 201);
 
@@ -154,20 +156,21 @@ class RelationLedgerRequestController extends Controller
         }
 
         $ledger->status = 'accepted';
+        $ledger->approved_by = $acceptor; // record who approved
         $ledger->save();
 
         return response()->json([
-            'message' => 'Ledger request accepted successfully.',
+            'message' => 'Ledger request processed successfully.',
             'rlr_id' => $ledger->id,
             'status' => $ledger->status,
-            'accepted_by' => $acceptor,
             'requested_by' => $ledger->requested_by,
+            'approved_by' => $ledger->approved_by,
             'updated_at' => $ledger->updated_at,
         ], 200);
     }
 
     /**
-     * Cancel a pending ledger request (only requester can cancel).
+     * Cancel a pending ledger request.
      */
     public function cancelLedgerRequest($id)
     {
@@ -189,14 +192,15 @@ class RelationLedgerRequestController extends Controller
         }
 
         $ledger->status = 'cancelled';
+        $ledger->approved_by = $canceler; // record who cancelled
         $ledger->save();
 
         return response()->json([
-            'message' => 'Ledger request cancelled successfully.',
+            'message' => 'Ledger request processed successfully.',
             'rlr_id' => $ledger->id,
             'status' => $ledger->status,
-            'cancelled_by' => $canceler,
             'requested_by' => $ledger->requested_by,
+            'approved_by' => $ledger->approved_by,
             'updated_at' => $ledger->updated_at,
         ], 200);
     }
@@ -221,6 +225,7 @@ class RelationLedgerRequestController extends Controller
             'buyer_business' => $ledger->buyer->business->business_name,
             'status' => $ledger->status,
             'requested_by' => $ledger->requested_by,
+            'approved_by' => $ledger->approved_by,
             'created_at' => $ledger->created_at,
             'updated_at' => $ledger->updated_at,
         ], 200);

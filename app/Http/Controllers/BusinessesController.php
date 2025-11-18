@@ -25,7 +25,7 @@ class BusinessesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'business_name' => 'required|string|max:30|unique:businesses,business_name',
+            'business_name' => 'required|string|max:30',
             'cate_id' => 'required|exists:categories,id',
         ]);
 
@@ -49,7 +49,7 @@ class BusinessesController extends Controller
     public function update(Request $request, businesses $businesses)
     {
         $request->validate([
-            'business_name' => 'required|string|max:30|unique:businesses,business_name,' . $businesses->id,
+            'business_name' => 'required|string|max:30|' . $businesses->id,
             'cate_id' => 'required|exists:categories,id',
         ]);
 
